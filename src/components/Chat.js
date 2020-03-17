@@ -12,17 +12,38 @@ const Chat = ({ socket }) => {
 
   const [message, setMessage] = React.useState("");
   const [chatLog, setChatLog] = React.useState([]);
+  const [isTypingMessage, setIsTypingMessage] = React.useState("");
+  const [usersOnline, setUsersOnline] = React.useState([]);
 
   socket.on("new message", data => {
-    console.log(data);
     setChatLog([...chatLog, data]);
   });
 
   socket.on("user joined", data => {
     setChatLog([...chatLog, data]);
+    setUsersOnline([...usersOnline, data.username]);
+  });
+
+  socket.on("user left", data => {
+    setChatLog([...chatLog, data]);
+    const filteredUsers = usersOnline.filter(user => user !== data.username);
+    setUsersOnline(filteredUsers);
+  });
+
+  socket.on("typing", data => {
+    setIsTypingMessage(data.message);
+  });
+
+  socket.on("stop typing", data => {
+    setIsTypingMessage(data.message);
   });
 
   function handleChange(e) {
+    if (e.target.value.length > 0) {
+      socket.emit("typing");
+    } else {
+      socket.emit("stop typing");
+    }
     setMessage(e.target.value);
   }
 
@@ -31,16 +52,16 @@ const Chat = ({ socket }) => {
     socket.emit("new message", message);
     setMessage("");
   }
-
   return (
-    <div>
-      <h2>AIM Gold</h2>
+    <main>
+      <h2>Donuts by Devin</h2>
       <ul>
         {chatLog.map((data, i) => (
           <li key={i}>
             {data.username}: {data.message}
           </li>
         ))}
+        {isTypingMessage.length > 0 && <li>{isTypingMessage}</li>}
       </ul>
       <form onSubmit={handleSubmit}>
         <label name="message">
@@ -48,7 +69,12 @@ const Chat = ({ socket }) => {
         </label>
         <button>Submit</button>
       </form>
-    </div>
+      <ul>
+        {usersOnline.map((username, i) => (
+          <li key={i}>{username}</li>
+        ))}
+      </ul>
+    </main>
   );
 };
 

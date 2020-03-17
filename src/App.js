@@ -10,7 +10,7 @@ function App() {
 
   return (
     <>
-      {isLoggedIn ? (
+      {isLoggedIn || localStorage.getItem("username") ? (
         <Chat socket={socket} />
       ) : (
         <Login setIsLoggedIn={setIsLoggedIn} socket={socket} />
