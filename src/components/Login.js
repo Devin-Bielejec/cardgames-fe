@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 
-const Login = ({ setUser, socket }) => {
+const Login = ({ socket, setIsLoggedIn }) => {
   const [currentName, setCurrentName] = useState("");
 
   const handleSubmit = e => {
     e.preventDefault();
-    setUser({ user: currentName });
-    socket.emit("add user", currentName);
+    localStorage.setItem("username", currentName);
+    setIsLoggedIn(true);
     setCurrentName("");
   };
   return (

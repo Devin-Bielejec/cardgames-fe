@@ -1,15 +1,25 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 const Chat = ({ socket }) => {
-  const [message, setMessage] = React.useState("");
-  const [chatLog, setChatLog] = React.useState(["Welcome!"]);
+  useEffect(() => {
+    try {
+      const username = localStorage.getItem("username");
+      socket.emit("add user", username);
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
 
-  socket.on("chat message", msg => {
-    setChatLog([...chatLog, msg]);
+  const [message, setMessage] = React.useState("");
+  const [chatLog, setChatLog] = React.useState([]);
+
+  socket.on("new message", data => {
+    console.log(data);
+    setChatLog([...chatLog, data]);
   });
 
   socket.on("user joined", data => {
-    setChatLog([...chatLog, `${data.name} has joined!`]);
+    setChatLog([...chatLog, data]);
   });
 
   function handleChange(e) {
@@ -18,7 +28,7 @@ const Chat = ({ socket }) => {
 
   function handleSubmit(e) {
     e.preventDefault();
-    socket.emit("chat message", message);
+    socket.emit("new message", message);
     setMessage("");
   }
 
@@ -26,8 +36,10 @@ const Chat = ({ socket }) => {
     <div>
       <h2>AIM Gold</h2>
       <ul>
-        {chatLog.map(chatItem => (
-          <li>{chatItem}</li>
+        {chatLog.map((data, i) => (
+          <li key={i}>
+            {data.username}: {data.message}
+          </li>
         ))}
       </ul>
       <form onSubmit={handleSubmit}>
