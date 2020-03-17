@@ -1,4 +1,17 @@
 import React, { useEffect } from "react";
+import ChatLog from "./ChatLog";
+import UsersOnline from "./UsersOnline";
+import Layout from "./Layout";
+import styled from "styled-components";
+
+const Grid = styled.div`
+  display: grid;
+  grid-template-rows: 1fr;
+  grid-template-columns: 1fr 6fr;
+  row-gap: 0px;
+  column-gap: 1px;
+  padding: 0 1rem;
+`;
 
 const Chat = ({ socket }) => {
   useEffect(() => {
@@ -53,28 +66,18 @@ const Chat = ({ socket }) => {
     setMessage("");
   }
   return (
-    <main>
-      <h2>Donuts by Devin</h2>
-      <ul>
-        {chatLog.map((data, i) => (
-          <li key={i}>
-            {data.username}: {data.message}
-          </li>
-        ))}
-        {isTypingMessage.length > 0 && <li>{isTypingMessage}</li>}
-      </ul>
-      <form onSubmit={handleSubmit}>
-        <label name="message">
-          <input type="message" value={message} onChange={handleChange} />
-        </label>
-        <button>Submit</button>
-      </form>
-      <ul>
-        {usersOnline.map((username, i) => (
-          <li key={i}>{username}</li>
-        ))}
-      </ul>
-    </main>
+    <Layout>
+      <Grid>
+        <UsersOnline users={usersOnline} />
+        <ChatLog
+          chatLog={chatLog}
+          isTypingMessage={isTypingMessage}
+          handleSubmit={handleSubmit}
+          handleChange={handleChange}
+          message={message}
+        />
+      </Grid>
+    </Layout>
   );
 };
 
